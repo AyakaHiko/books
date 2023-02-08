@@ -4,6 +4,7 @@
 }
 
 <h1>Details</h1>
+<a asp-controller="Home" asp-action="Index">Back</a>
 
 @model Book
 
@@ -16,4 +17,5 @@
     <p>Publishing: @Model.Publishing</p>
     <p>Public Year: @Model.PublicYear</p>
     <img src="~/img/@Model.CoverPath"/>
+
 </div>
