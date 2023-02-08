@@ -7,7 +7,6 @@ namespace books.Data
         public static async Task Initialize(BookContext context)
         {
             await context.Database.EnsureCreatedAsync();
-
             if (context.Books.Any() == false)
             {
                 context.Books.AddRange(
@@ -18,7 +17,8 @@ namespace books.Data
                         Genre = "Science fiction",
                         Publishing = "Chatto & Windus",
                         PublicYear = 1932,
-                        CoverPath = "BNW.jpg"
+                        //CoverPath = "BNW.jpg"
+                        CoverPath = "https://i.pinimg.com/originals/9d/52/be/9d52be28804be34589bbd623273f789f.jpg"
                     },
                     new Book()
                     {
@@ -27,7 +27,8 @@ namespace books.Data
                         Genre = "Adventure fiction",
                         Publishing = "The Macmillan Company",
                         PublicYear = 1903,
-                        CoverPath = "CotW.jpg"
+                        //CoverPath = "CotW.jpg"
+                        CoverPath = "http://books.disney.com/content/uploads/2019/11/1368060781-1-705x1024.jpg"
                     },
                     new Book()
                     {
@@ -35,8 +36,10 @@ namespace books.Data
                         Author = "George Orwell",
                         Genre = "Political fiction",
                         Publishing = "Secker & Warburg",
-                        PublicYear = 1949, 
-                        CoverPath = "1984.jpg"
+                        PublicYear = 1949,
+                        //CoverPath = "1984.jpg"
+                        CoverPath = "https://i.pinimg.com/originals/0d/2c/09/0d2c0915b3c86c8ac0680f3f6c88731d.jpg"
+
                     }
                 );
 
