@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <ul>
+        @foreach (var book in Model)
+        {
+            <li class="list-group-item ">
+                <a asp-action="Details" asp-route-id="@book.Id">@book.Title</a>
+            </li>
+        }
+    </ul>
+
+</div>

@@ -1,0 +1,19 @@
+﻿
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+@model Book
+
+<h1>Book Details</h1>
+<hr />
+<div>
+    <p>Title: @Model.Title</p>
+    <p>Author: @Model.Author</p>
+    <p>Genre: @Model.Genre</p>
+    <p>Publishing: @Model.Publishing</p>
+    <p>Public Year: @Model.PublicYear</p>
+    <img src="~/img/@Model.CoverPath"/>
+</div>
