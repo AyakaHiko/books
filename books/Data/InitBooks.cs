@@ -6,6 +6,7 @@ namespace books.Data
     {
         public static async Task Initialize(BookContext context)
         {
+
             await context.Database.EnsureCreatedAsync();
             if (context.Books.Any() == false)
             {
