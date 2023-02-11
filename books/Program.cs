@@ -1,4 +1,5 @@
 using books.Data;
+using books.Models.DTO;
 using books.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +17,8 @@ builder.Services.AddDbContext<BookContext>(options =>
     options.UseSqlServer(cs);
 });
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddAutoMapper(typeof(BookProfile), typeof(AuthorProfile), typeof(GenreProfile));
 
 var app = builder.Build();
 
@@ -51,6 +54,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Books}/{action=Index}/{id?}");
 
 app.Run();

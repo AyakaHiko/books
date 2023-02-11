@@ -1,54 +1,49 @@
-﻿@model books.Models.Book
+﻿@model DetailsBookModel
 
 @{
     ViewData["Title"] = "Details";
 }
 
 <h1>Details</h1>
+<div class="card mb-3 w-100">
+    <div class="row g-0">
+        <div class="col-md-6">
+            <img src="data:image/*;base64,@(Convert.ToBase64String(Model.Book.Cover!))"
+                 class="w-100"
+                 alt="@Model.Book.Title">
+        </div>
+        <div class="col-md-6">
+            <div class="card-body">
+                <h4 class="card-title">@Model.Book.Title</h4>
+                <p>
+                    <span class="fw-bold">
+                        @Html.DisplayNameFor(m => m.Book.Genre!)
+                    </span>
+                    @Model.Book.Genre!.Name
+                </p>
 
-<div>
-    <h4>Book</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Author)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Author)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Genre)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Genre)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Publishing)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Publishing)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PublicYear)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PublicYear)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CoverPath)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CoverPath)
-        </dd>
-    </dl>
+                <p>
+                    <span class="fw-bold">
+                        @Html.DisplayNameFor(m => m.Book.Author)
+                    </span>
+                    @Model.Book.Author!.ToString();
+                </p>
+
+                <p class="card-text" style="white-space: pre-line">
+                    <span class="fw-bold">
+                        @Html.DisplayNameFor(m => m.Book.Publishing)
+                    </span>
+                    @Model.Book.Publishing @Model.Book.PublicYear
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit"
+       asp-route-id="@Model.Book.Id"
+       class="btn btn-warning me-3">Edit</a> |
+    <a asp-action="Index"
+       class="btn btn-primary ms-3">Back to List</a>
 </div>
+

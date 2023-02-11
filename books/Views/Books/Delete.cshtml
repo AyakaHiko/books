@@ -1,4 +1,4 @@
-﻿@model books.Models.Book
+﻿@model DeleteBookModel
 
 @{
     ViewData["Title"] = "Delete";
@@ -12,45 +12,45 @@
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
+            @Html.DisplayNameFor(model => model.Book.Title)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
+            @Html.DisplayFor(model => model.Book.Title)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Author)
+            @Html.DisplayNameFor(model => model.Book.Author)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Author)
+            @Html.DisplayFor(model => model.Book.Author.Id)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Genre)
+            @Html.DisplayNameFor(model => model.Book.Genre)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Genre)
+            @Html.DisplayFor(model => model.Book.Genre.Name)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Publishing)
+            @Html.DisplayNameFor(model => model.Book.Publishing)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Publishing)
+            @Html.DisplayFor(model => model.Book.Publishing)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PublicYear)
+            @Html.DisplayNameFor(model => model.Book.PublicYear)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PublicYear)
+            @Html.DisplayFor(model => model.Book.PublicYear)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CoverPath)
+            @Html.DisplayNameFor(model => model.Book.Cover)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CoverPath)
+            @Html.DisplayFor(model => model.Book.Cover)
         </dd>
     </dl>
     
     <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="Book.Id" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>

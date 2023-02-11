@@ -1,4 +1,4 @@
-﻿@model books.Models.Book
+﻿@model CreateBookModel
 
 @{
     ViewData["Title"] = "Create";
@@ -10,37 +10,39 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
+                <label asp-for="Book.Title" class="control-label"></label>
+                <input asp-for="Book.Title" class="form-control" />
+                <span asp-validation-for="Book.Title" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Author" class="control-label"></label>
-                <input asp-for="Author" class="form-control" />
-                <span asp-validation-for="Author" class="text-danger"></span>
+                <label asp-for="Book.AuthorId" class="control-label"></label>
+                <select asp-for="Book.AuthorId" class="form-control" asp-items="@Model!.AuthorList">
+                    <option selected="selected" disabled="disabled">Choose author</option>
+                </select>
             </div>
             <div class="form-group">
-                <label asp-for="Genre" class="control-label"></label>
-                <input asp-for="Genre" class="form-control" />
-                <span asp-validation-for="Genre" class="text-danger"></span>
+                <label asp-for="Book.GenreId" class="control-label"></label>
+                <select asp-for="Book.GenreId" class="form-control" asp-items="@Model!.GenreList">
+                    <option selected="selected" disabled="disabled">Choose Genre</option>
+                </select>
             </div>
             <div class="form-group">
-                <label asp-for="Publishing" class="control-label"></label>
-                <input asp-for="Publishing" class="form-control" />
-                <span asp-validation-for="Publishing" class="text-danger"></span>
+                <label asp-for="Book.Publishing" class="control-label"></label>
+                <input asp-for="Book.Publishing" class="form-control" />
+                <span asp-validation-for="Book.Publishing" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="PublicYear" class="control-label"></label>
-                <input asp-for="PublicYear" class="form-control" />
-                <span asp-validation-for="PublicYear" class="text-danger"></span>
+                <label asp-for="Book.PublicYear" class="control-label"></label>
+                <input asp-for="Book.PublicYear" class="form-control" />
+                <span asp-validation-for="Book.PublicYear" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="CoverPath" class="control-label"></label>
-                <input asp-for="CoverPath" class="form-control" />
-                <span asp-validation-for="CoverPath" class="text-danger"></span>
+                <label asp-for="Cover" class="control-label"></label>
+                <input asp-for="Cover" class="form-control" />
+                <span asp-validation-for="Cover" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

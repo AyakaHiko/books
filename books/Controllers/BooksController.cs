@@ -2,27 +2,66 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using books.Data;
 using books.Models;
+using books.Models.DTO;
+using books.Models.ViewModels.BookModel;
 
 namespace books.Controllers
 {
     public class BooksController : Controller
     {
         private readonly BookContext _context;
+        private readonly ILogger _logger;
 
-        public BooksController(BookContext context)
+        private readonly IMapper _mapper;
+        public BooksController(BookContext context, ILoggerFactory factory, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
+            _logger = factory.CreateLogger<BooksController>();
         }
 
         // GET: Books
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int genreId, int authorId, string? search)
         {
-              return View(await _context.Books.ToListAsync());
+
+            IQueryable<Book> bookContext = _context.Books
+                    .Include(b => b.Author)
+                    .Include(b => b.Genre)
+                ;
+            if (genreId > 0)
+            {
+                bookContext = bookContext.Where(b => b.GenreId == genreId);
+            }
+
+            if (authorId > 0)
+            {
+                bookContext = bookContext.Where(b => b.AuthorId == authorId);
+            }
+
+            if (search != null)
+            {
+                bookContext = bookContext.Where(b => b.Title.Contains(search));
+            }
+            
+            IEnumerable<GenreDTO> genreDtos = _mapper.Map<IEnumerable<GenreDTO>>(await _context.Genres.ToListAsync());
+            IEnumerable<AuthorDTO> authorDtos = _mapper.Map<IEnumerable<AuthorDTO>>(await _context.Authors.ToListAsync());
+           
+            IEnumerable<BookDTO> bookDtos = _mapper.Map<IEnumerable<BookDTO>>(bookContext);
+            
+            SelectList genreList = new SelectList(items: genreDtos, dataValueField: "Id", dataTextField: "Name", selectedValue: genreId);
+            SelectList authorList = new SelectList(items: authorDtos, dataValueField: "Id", dataTextField: "FullName", selectedValue: genreId);
+
+            IndexBookViewModel vm = new IndexBookViewModel
+            {
+                Books = bookDtos, GenreSelect = genreList, AuthorSelect = authorList
+            };
+            return View(vm);
         }
 
         // GET: Books/Details/5
@@ -33,20 +72,37 @@ namespace books.Controllers
                 return NotFound();
             }
 
-            var book = await _context.Books
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (book == null)
-            {
-                return NotFound();
-            }
+            var book = _context.Books
+                    .Include(b => b.Author)
+                    .Include(b => b.Genre)
+                    .FirstOrDefault(b => b.Id ==id);
 
-            return View(book);
+            
+            DetailsBookModel vm = new DetailsBookModel()
+            {
+                Book = _mapper.Map<BookDTO>(book)
+            };
+
+            return View(vm);
+            
         }
 
         // GET: Books/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+
+            IEnumerable<GenreDTO> genreDtos = _mapper.Map<IEnumerable<GenreDTO>>(await _context.Genres.ToListAsync());
+            IEnumerable<AuthorDTO> authorDtos = _mapper.Map<IEnumerable<AuthorDTO>>(await _context.Authors.ToListAsync());
+
+            SelectList genreList = new SelectList(items: genreDtos, dataValueField: "Id", dataTextField: "Name");
+            SelectList authorList = new SelectList(items: authorDtos, dataValueField: "Id", dataTextField: "Surname");
+            CreateBookModel vm = new CreateBookModel
+            {
+                GenreList = genreList, AuthorList = authorList
+            };
+
+
+            return View(vm);
         }
 
         // POST: Books/Create
@@ -54,15 +110,38 @@ namespace books.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Author,Genre,Publishing,PublicYear,CoverPath")] Book book)
+        public async Task<IActionResult> Create(CreateBookModel viewModel)
         {
             if (ModelState.IsValid)
             {
+                byte[]? dataImage = null;
+                using (var reader = new BinaryReader(viewModel.Cover.OpenReadStream()))
+                {
+                    dataImage = reader.ReadBytes((int)viewModel.Cover.Length);
+                    viewModel.Book.Cover = dataImage;
+                }
+
+                Book book  = _mapper.Map<Book>(viewModel.Book);
                 _context.Add(book);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(book);
+            else
+            {
+                IEnumerable<GenreDTO> genreDtos = _mapper.Map<IEnumerable<GenreDTO>>(await _context.Genres.ToListAsync());
+                IEnumerable<AuthorDTO> authorDtos = _mapper.Map<IEnumerable<AuthorDTO>>(await _context.Authors.ToListAsync());
+
+                SelectList genreList = new SelectList(items: genreDtos, dataValueField: "Id", dataTextField: "Name", selectedValue: viewModel.Book.GenreId);
+                SelectList authorList = new SelectList(items: authorDtos, dataValueField: "Id", dataTextField: "Surname", selectedValue:viewModel.Book.AuthorId);
+                viewModel.AuthorList = authorList;
+                viewModel.GenreList = genreList;
+                foreach (var modelError in ModelState.Values.SelectMany(e=>e.Errors))
+                {
+                    _logger.LogError(modelError.ErrorMessage);
+                }
+
+                return View(viewModel);
+            }
         }
 
         // GET: Books/Edit/5
@@ -78,7 +157,20 @@ namespace books.Controllers
             {
                 return NotFound();
             }
-            return View(book);
+            IEnumerable<GenreDTO> genreDtos = _mapper.Map<IEnumerable<GenreDTO>>(await _context.Genres.ToListAsync());
+            IEnumerable<AuthorDTO> authorDtos = _mapper.Map<IEnumerable<AuthorDTO>>(await _context.Authors.ToListAsync());
+
+            SelectList genreList = new SelectList(items: genreDtos, dataValueField: "Id", dataTextField: "Name");
+            SelectList authorList = new SelectList(items: authorDtos, dataValueField: "Id", dataTextField: "Surname");
+            var vm = new EditBookModel()
+            {
+                Book = _mapper.Map<BookDTO>(book),
+                GenreList = genreList,
+                AuthorList = authorList
+            };
+
+
+            return View(vm);
         }
 
         // POST: Books/Edit/5
@@ -86,9 +178,9 @@ namespace books.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Author,Genre,Publishing,PublicYear,CoverPath")] Book book)
+        public async Task<IActionResult> Edit(int id,EditBookModel viewModel)
         {
-            if (id != book.Id)
+            if (id != viewModel.Book.Id)
             {
                 return NotFound();
             }
@@ -97,12 +189,23 @@ namespace books.Controllers
             {
                 try
                 {
+                    if (viewModel.Cover is not null)
+                    {
+                        byte[]? dataImage = null;
+                        using (var reader = new BinaryReader(viewModel.Cover.OpenReadStream()))
+                        {
+                            dataImage = reader.ReadBytes((int)viewModel.Cover.Length);
+                            viewModel.Book.Cover = dataImage;
+                        }
+                    }
+                    var book = _mapper.Map<Book>(viewModel.Book);
+
                     _context.Update(book);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!BookExists(book.Id))
+                    if (!BookExists(viewModel.Book.Id))
                     {
                         return NotFound();
                     }
@@ -113,7 +216,20 @@ namespace books.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(book);
+
+            IEnumerable<GenreDTO> genreDtos = _mapper.Map<IEnumerable<GenreDTO>>(await _context.Genres.ToListAsync());
+            IEnumerable<AuthorDTO> authorDtos = _mapper.Map<IEnumerable<AuthorDTO>>(await _context.Authors.ToListAsync());
+
+            SelectList genreList = new SelectList(items: genreDtos, dataValueField: "Id", dataTextField: "Name", selectedValue:viewModel.Book.GenreId);
+            SelectList authorList = new SelectList(items: authorDtos, dataValueField: "Id", dataTextField: "Surname", selectedValue:viewModel.Book.AuthorId);
+            var vm = new EditBookModel()
+            {
+                GenreList = genreList,
+                AuthorList = authorList
+            };
+
+
+            return View(vm);
         }
 
         // GET: Books/Delete/5
@@ -124,14 +240,22 @@ namespace books.Controllers
                 return NotFound();
             }
 
+
             var book = await _context.Books
+                .Include(b => b.Author)
+                .Include(b => b.Genre)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (book == null)
             {
                 return NotFound();
             }
 
-            return View(book);
+
+            var vm = new DeleteBookModel()
+            {
+                Book = _mapper.Map<BookDTO>(book)
+            };
+            return View(vm);
         }
 
         // POST: Books/Delete/5

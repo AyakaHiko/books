@@ -1,4 +1,4 @@
-﻿@model IEnumerable<books.Models.Book>
+﻿@model IndexBookViewModel
 
 @{
     ViewData["Title"] = "Index";
@@ -9,57 +9,61 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Author)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Genre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Publishing)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PublicYear)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CoverPath)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Author)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Genre)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Publishing)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PublicYear)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CoverPath)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<form asp-action="Index" method="get">
+    <div class="row">
+        <div class=" col col-md-4 col-12">
+            <div class="mb-3">
+                <label asp-for="GenreId">Genre</label>
+                <select asp-for="GenreId" asp-items="@Model!.GenreSelect">
+                    <option selected="selected" value="0">All</option>
+                </select>
+            </div>
+        </div>
+        <div class=" col col-md-4 col-12">
+            <div class="mb-3">
+                <label asp-for="AuthorId">Author</label>
+                <select asp-for="AuthorId" asp-items="@Model.AuthorSelect">
+                    <option selected="selected" value="0">All</option>
+                </select>
+            </div>
+        </div>
+
+        <div class=" col col-md-4 col-12">
+            <div class="mb-3">
+                <input asp-for="Search" class="form-control" placeholder="@nameof(Model.Search)" />
+            </div>
+        </div>
+        <div class=" col col-md-4 col-12">
+            <div class="mb-3">
+                <button type="submit" class="btn-success">Search</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="row">
+    @foreach (var book in Model.Books)
+    {
+        <div class="col col-xl-3 col-lg-4 col-md-6 col-12 mb-5">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h2 class="card-title">@book.Title</h2>
+                    <hr/>
+                    <h3 class="card-title">@book.Author?.ToString()</h3>
+                    <h3 class="card-title">@book.Genre?.Name</h3>
+                    <p class="card-text">Publishing: @book.Publishing @book.PublicYear</p>
+                    <div class="btn-group btn-group-sm">
+                        <a asp-action="Edit" asp-route-id="@book.Id" class="btn-success btn">Edit</a> 
+                        <a asp-action="Details" asp-route-id="@book.Id" class="btn-warning btn ">Details</a> 
+                        <a asp-action="Delete" asp-route-id="@book.Id" class="btn-danger btn">Delete</a>
+                    </div>
+
+                </div>
+            </div>
+            <div class="card">
+                <img class="card-img-bottom" src="data:image/*;base64,@Convert.ToBase64String(book.Cover!)"
+                     alt="Card image cap">
+            </div>
+        </div>
+    }
+</div>
