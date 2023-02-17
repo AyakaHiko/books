@@ -6,9 +6,12 @@
 
 <h1>Index</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+@if (User.Identity.IsAuthenticated)
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
 <form asp-action="Index" method="get">
     <div class="row">
         <div class=" col col-md-4 col-12">
@@ -53,9 +56,12 @@
                     <h3 class="card-title">@book.Genre?.Name</h3>
                     <p class="card-text">Publishing: @book.Publishing @book.PublicYear</p>
                     <div class="btn-group btn-group-sm">
-                        <a asp-action="Edit" asp-route-id="@book.Id" class="btn-success btn">Edit</a> 
-                        <a asp-action="Details" asp-route-id="@book.Id" class="btn-warning btn ">Details</a> 
-                        <a asp-action="Delete" asp-route-id="@book.Id" class="btn-danger btn">Delete</a>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a asp-action="Edit" asp-route-id="@book.Id" class="btn-success btn">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@book.Id" class="btn-danger btn">Delete</a>
+                        }
+                        <a asp-action="Details" asp-route-id="@book.Id" class="btn-warning btn ">Details</a>
                     </div>
 
                 </div>

@@ -24,7 +24,7 @@ namespace books.Controllers
             return View(await products.ToListAsync());
         }
 
-        public IActionResult Privacy()
+        public IActionResult Edit()
         {
             return View();
         }

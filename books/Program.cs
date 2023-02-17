@@ -1,6 +1,7 @@
 using books.Data;
 using books.Models.DTO;
 using books.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +21,17 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddAutoMapper(typeof(BookProfile), typeof(AuthorProfile), typeof(GenreProfile));
 
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(opt =>
+    {
+        opt.LoginPath = new PathString("/Account/Login");
+        opt.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+    });
+
+
 var app = builder.Build();
+
 
 
 using (IServiceScope scope = app.Services.CreateScope())
@@ -50,10 +61,12 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Books}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

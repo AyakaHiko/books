@@ -1,0 +1,49 @@
+﻿@model books.Models.RegisterVm
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<h1>Register</h1>
+
+<form asp-action="Register">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-floating mb-3">
+        <input asp-for="Email"
+               class="form-control"
+               placeholder="@nameof(Model.Email)">
+        <label asp-for="Email"></label>
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-floating mb-3">
+        <input asp-for="Password"
+               type="password"
+               class="form-control"
+               placeholder="@nameof(Model.Password)">
+        <label asp-for="Password"></label>
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="form-floating mb-3">
+        <input asp-for="ConfirmPassword"
+               type="password"
+               class="form-control"
+               placeholder="@nameof(Model.ConfirmPassword)">
+        <label asp-for="ConfirmPassword"></label>
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <input type="submit"
+               value="Register"
+               class="btn btn-lg btn-success" />
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
