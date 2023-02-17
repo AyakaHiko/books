@@ -46,7 +46,13 @@ namespace books.Controllers
         // GET: Genres/Create
         public IActionResult Create()
         {
-            return View();
+            var access = _checkAccess();
+            return access ?? View();
+        }
+
+        private IActionResult? _checkAccess()
+        {
+            return (!HttpContext.User.Identity!.IsAuthenticated ? Content("Access denied") : null)!;
         }
 
         // POST: Genres/Create
@@ -68,6 +74,9 @@ namespace books.Controllers
         // GET: Genres/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            var access = _checkAccess();
+            if (access != null)
+                return access;
             if (id == null || _context.Genres == null)
             {
                 return NotFound();
@@ -119,6 +128,9 @@ namespace books.Controllers
         // GET: Genres/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            var access = _checkAccess();
+            if (access != null)
+                return access;
             if (id == null || _context.Genres == null)
             {
                 return NotFound();
@@ -139,6 +151,7 @@ namespace books.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+
             if (_context.Genres == null)
             {
                 return Problem("Entity set 'BookContext.Genres'  is null.");

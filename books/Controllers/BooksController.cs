@@ -26,6 +26,11 @@ namespace books.Controllers
             _logger = factory.CreateLogger<BooksController>();
         }
 
+
+        private IActionResult? _checkAccess()
+        {
+            return (!HttpContext.User.Identity!.IsAuthenticated ? Content("Access denied") : null)!;
+        }
         // GET: Books
         public async Task<IActionResult> Index(int genreId, int authorId, string? search)
         {
@@ -90,7 +95,9 @@ namespace books.Controllers
         // GET: Books/Create
         public async Task<IActionResult> Create()
         {
-
+            var access = _checkAccess();
+            if (access != null)
+                return access;
             IEnumerable<GenreDTO> genreDtos = _mapper.Map<IEnumerable<GenreDTO>>(await _context.Genres.ToListAsync());
             IEnumerable<AuthorDTO> authorDtos = _mapper.Map<IEnumerable<AuthorDTO>>(await _context.Authors.ToListAsync());
 
@@ -147,6 +154,10 @@ namespace books.Controllers
         // GET: Books/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            var access = _checkAccess();
+            if (access != null)
+                return access;
+           
             if (id == null || _context.Books == null)
             {
                 return NotFound();
@@ -235,6 +246,9 @@ namespace books.Controllers
         // GET: Books/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            var access = _checkAccess();
+            if (access != null)
+                return access;
             if (id == null || _context.Books == null)
             {
                 return NotFound();

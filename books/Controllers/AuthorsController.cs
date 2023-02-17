@@ -15,6 +15,10 @@ namespace books.Controllers
     {
         private readonly BookContext _context;
 
+        private IActionResult? _checkAccess()
+        {
+            return (!HttpContext.User.Identity!.IsAuthenticated ? Content("Access denied") : null)!;
+        }
         public AuthorsController(BookContext context)
         {
             _context = context;
@@ -51,7 +55,8 @@ namespace books.Controllers
         // GET: Authors/Create
         public IActionResult Create()
         {
-            return View();
+            var access = _checkAccess();
+            return access ?? View();
         }
 
         // POST: Authors/Create
@@ -73,6 +78,9 @@ namespace books.Controllers
         // GET: Authors/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            var access = _checkAccess();
+            if (access != null)
+                return access;
             if (id == null || _context.Authors == null)
             {
                 return NotFound();
@@ -124,6 +132,9 @@ namespace books.Controllers
         // GET: Authors/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            var access = _checkAccess();
+            if (access != null)
+                return access;
             if (id == null || _context.Authors == null)
             {
                 return NotFound();
