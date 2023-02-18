@@ -6,28 +6,115 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using books.Data;
 using books.Models;
+using books.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace books.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly BookContext _context;
+        private readonly IEmailService _emailService;
 
-        public AccountController(BookContext context)
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
+
+        public AccountController(
+            IEmailService emailService,
+            UserManager<User> userManager,
+            SignInManager<User> signInManager)
         {
-            _context = context;
+            _emailService = emailService;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
-        public IActionResult Login()
+        [HttpGet]
+        public IActionResult Register()
         {
             return View();
         }
-        public async Task<IActionResult> Logout()
-        {
-            await HttpContext.SignOutAsync(
-                scheme: CookieAuthenticationDefaults.AuthenticationScheme);
 
-            return RedirectToAction("Index", "Home");
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterVm model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = new User
+            {
+                Email = model.Email,
+                UserName = model.Email,
+            };
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+
+            if (result.Succeeded)
+            {
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                var callbackUrl = Url.Action(
+                    "ConfirmEmail",
+                    "Account",
+                    new
+                    {
+                        userId = user.Id, code
+                    },
+                    HttpContext.Request.Scheme)!;
+
+                await _emailService.SendEmailAsync(
+                    from: "Library",
+                    to: model.Email,
+                    "Confirm your account",
+                    html: $"To confirm registration <a href='{callbackUrl}'>follow the link</a>");
+
+                return View("ConfirmedRegistration");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+
+            return View(model);
+        }
+
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> ConfirmEmail(string userId, string code)
+        {
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(code))
+            {
+                return View("Error");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null)
+            {
+                return View("Error");
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, code);
+            return result.Succeeded
+                ? RedirectToAction("ConfirmedAccount", new { userName = user.Email })
+                : View("Error");
+        }
+
+
+        [HttpGet]
+        public IActionResult ConfirmedAccount(string userName)
+        {
+            return View("ConfirmedAccount", userName);
+        }
+
+
+
+        [HttpGet]
+        public IActionResult Login(string? returnUrl = null)
+        {
+            return View(new LoginVm { ReturnUrl = returnUrl });
         }
 
 
@@ -35,84 +122,55 @@ namespace books.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginVm model)
         {
-            if (ModelState.IsValid == true)
-            {
-                var user = await _context.Users.FirstOrDefaultAsync(u =>
-                    u.Email == model.Email &&
-                    u.Password == model.Password);
+            if (!ModelState.IsValid) return View(model);
 
-                if (user is not null)
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user is not null)
+            {
+                if (await _userManager.IsEmailConfirmedAsync(user) == false)
                 {
-                    await Authenticate(model.Email);
+                    ModelState.AddModelError("", "Your email was not confirmed");
+                    return View(model);
+                }
+            }
+
+            if (user is null)
+            {
+                return View("Error");
+            }
+
+            var signInResult = await _signInManager.PasswordSignInAsync(
+                userName: model.Email,
+                password: model.Password,
+                isPersistent: model.RememberMe,
+                lockoutOnFailure: false);
+
+            if (signInResult.Succeeded)
+            {
+                if (!string.IsNullOrEmpty(model.ReturnUrl) &&
+                    Url.IsLocalUrl(model.ReturnUrl))
+                {
+                    return Redirect(model.ReturnUrl);
+                }
+                else
+                {
                     return RedirectToAction("Index", "Home");
                 }
-
-                ModelState.AddModelError("", "Invalid Email or Password");
+            }
+            else
+            {
+                ModelState.AddModelError("", "Invalid login or password");
             }
 
             return View(model);
         }
 
-        public IActionResult Register()
+        
+        public async Task<IActionResult> Logout()
         {
-            return View();
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
-
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterVm model)
-        {
-            if (ModelState.IsValid == true)
-            {
-                User? user = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Email == model.Email);
-
-                if (user is null)
-                {
-                    User newUser = new User
-                    {
-                        Email = model.Email,
-                        Password = model.Password,
-                    };
-
-                    await _context.Users.AddAsync(newUser);
-                    await _context.SaveChangesAsync();
-
-                    await Authenticate(model.Email);
-
-                    return RedirectToAction("Index", "Home");
-                }
-
-                ModelState.AddModelError("", "This email is already exist");
-
-            }
-
-            return View(model);
-        }
-
-
-
-
-        private async Task Authenticate(string email)
-        {
-            List<Claim> claims = new List<Claim>
-            {
-                new(ClaimsIdentity.DefaultNameClaimType, email)
-            };
-
-            ClaimsIdentity identity = new ClaimsIdentity(
-                claims: claims,
-                authenticationType: "ApplicationCookie",
-                nameType: ClaimsIdentity.DefaultNameClaimType,
-                roleType: ClaimsIdentity.DefaultRoleClaimType);
-
-            await HttpContext.SignInAsync(
-                scheme: CookieAuthenticationDefaults.AuthenticationScheme,
-                principal: new ClaimsPrincipal(identity));
-
-        }
-
-
     }
 }

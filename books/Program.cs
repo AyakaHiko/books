@@ -1,7 +1,9 @@
 using books.Data;
+using books.Models;
 using books.Models.DTO;
 using books.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,34 +22,24 @@ builder.Services.AddDbContext<BookContext>(options =>
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddAutoMapper(typeof(BookProfile), typeof(AuthorProfile), typeof(GenreProfile));
+builder.Services.AddTransient<IEmailService, EmailService>();
 
-builder.Services
-    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(opt =>
-    {
-        opt.LoginPath = new PathString("/Account/Login");
-        opt.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-    });
 
+builder.Services.AddIdentity<User, IdentityRole>((options =>
+{
+    options.User.RequireUniqueEmail = true;
+    options.Password.RequiredLength = 1;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireDigit = false;
+
+}))
+    .AddEntityFrameworkStores<BookContext>()
+    .AddDefaultTokenProviders();
 
 var app = builder.Build();
 
-
-
-using (IServiceScope scope = app.Services.CreateScope())
-{
-    IServiceProvider services = scope.ServiceProvider;
-
-    try
-    {
-        BookContext context = services.GetRequiredService<BookContext>();
-        await InitBooks.Initialize(context);
-    }
-    catch (Exception)
-    {
-        throw;
-    }
-}
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

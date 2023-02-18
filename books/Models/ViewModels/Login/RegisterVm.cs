@@ -5,6 +5,7 @@ namespace books.Models;
 public class RegisterVm
 {
     [Required]
+    [DataType(DataType.EmailAddress)]
     public string Email { get; set; } = default!;
 
     [Required]
@@ -12,7 +13,8 @@ public class RegisterVm
     public string Password { get; set; } = default!;
 
     [Required]
-    [Compare(nameof(Password), ErrorMessage = "Пароли не совпадают")]
     [DataType(DataType.Password)]
+    [Compare(nameof(Password), ErrorMessage = "Passwords are different")]
+    [Display(Name = "Confirm Password")]
     public string ConfirmPassword { get; set; } = default!;
 }
