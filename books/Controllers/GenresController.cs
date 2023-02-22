@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using books.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -19,10 +20,16 @@ namespace books.Controllers
             _context = context;
         }
 
+
+        private void _checkAccess()
+        {
+            ViewBag.IsAdmin = User.Claims.Any(c => c.Type is Claims.Admin or Claims.SuperAdmin);
+        }
         // GET: Genres
         public async Task<IActionResult> Index()
         {
-              return View(await _context.Genres.ToListAsync());
+            _checkAccess();
+            return View(await _context.Genres.ToListAsync());
         }
 
         // GET: Genres/Details/5
@@ -46,15 +53,10 @@ namespace books.Controllers
         // GET: Genres/Create
         public IActionResult Create()
         {
-            var access = _checkAccess();
-            return access ?? View();
+            return View();
         }
 
-        private IActionResult? _checkAccess()
-        {
-            return (!HttpContext.User.Identity!.IsAuthenticated ? Content("Access denied") : null)!;
-        }
-
+        
         // POST: Genres/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -74,9 +76,6 @@ namespace books.Controllers
         // GET: Genres/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            var access = _checkAccess();
-            if (access != null)
-                return access;
             if (id == null || _context.Genres == null)
             {
                 return NotFound();
@@ -128,9 +127,6 @@ namespace books.Controllers
         // GET: Genres/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            var access = _checkAccess();
-            if (access != null)
-                return access;
             if (id == null || _context.Genres == null)
             {
                 return NotFound();
@@ -161,14 +157,14 @@ namespace books.Controllers
             {
                 _context.Genres.Remove(genre);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool GenreExists(int id)
         {
-          return _context.Genres.Any(e => e.Id == id);
+            return _context.Genres.Any(e => e.Id == id);
         }
     }
 }

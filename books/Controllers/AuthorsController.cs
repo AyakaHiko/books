@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using books.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -15,9 +16,10 @@ namespace books.Controllers
     {
         private readonly BookContext _context;
 
-        private IActionResult? _checkAccess()
+
+        private void _checkAccess()
         {
-            return (!HttpContext.User.Identity!.IsAuthenticated ? Content("Access denied") : null)!;
+            ViewBag.IsAdmin = User.Claims.Any(c => c.Type is Claims.Admin or Claims.SuperAdmin);
         }
         public AuthorsController(BookContext context)
         {
@@ -27,6 +29,7 @@ namespace books.Controllers
         // GET: Authors
         public async Task<IActionResult> Index()
         {
+            _checkAccess();
             var vm = new IndexAuthorModel
             {
                 Authors = await _context.Authors.ToListAsync()
@@ -55,8 +58,7 @@ namespace books.Controllers
         // GET: Authors/Create
         public IActionResult Create()
         {
-            var access = _checkAccess();
-            return access ?? View();
+            return View();
         }
 
         // POST: Authors/Create
@@ -78,9 +80,6 @@ namespace books.Controllers
         // GET: Authors/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            var access = _checkAccess();
-            if (access != null)
-                return access;
             if (id == null || _context.Authors == null)
             {
                 return NotFound();
@@ -132,9 +131,6 @@ namespace books.Controllers
         // GET: Authors/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            var access = _checkAccess();
-            if (access != null)
-                return access;
             if (id == null || _context.Authors == null)
             {
                 return NotFound();

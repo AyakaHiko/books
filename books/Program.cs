@@ -1,3 +1,4 @@
+using books.Authorization;
 using books.Data;
 using books.Models;
 using books.Models.DTO;
@@ -10,6 +11,23 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddScoped<IBookService, BookService>();
+
+builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy(Policies.SuperAdminAccessOnly,
+            policy => policy.RequireAssertion(
+                context => context.User.HasClaim(claim => claim.Type == Claims.SuperAdmin
+                )));
+        options.AddPolicy(Policies.AdminAndAboveAccess,
+            policy => policy.RequireAssertion(
+                context => context.User.HasClaim(claim => claim.Type is Claims.SuperAdmin or Claims.Admin
+                )));
+        options.AddPolicy(Policies.MemberAndAboveAccess,
+            policy => policy.RequireAssertion(
+                context => context.User.HasClaim(claim => claim.Type is Claims.SuperAdmin or Claims.Admin or Claims.Member
+                )));
+    }
+    );
 
 
 builder.Services.AddDbContext<BookContext>(options =>
@@ -60,5 +78,16 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+using (IServiceScope scope = app.Services.CreateScope())
+{
+    IServiceProvider sp = scope.ServiceProvider;
+
+    await SeedData.InitializeAsync(
+        sp,
+        app.Environment,
+        app.Configuration);
+}
+
 
 app.Run();

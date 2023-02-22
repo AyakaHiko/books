@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using books.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using books.Data;
 using books.Models;
 using books.Models.DTO;
 using books.Models.ViewModels.BookModel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace books.Controllers
 {
@@ -27,14 +29,14 @@ namespace books.Controllers
         }
 
 
-        private IActionResult? _checkAccess()
+        private  void _checkAccess()
         {
-            return (!HttpContext.User.Identity!.IsAuthenticated ? Content("Access denied") : null)!;
+            ViewBag.IsAdmin = User.Claims.Any(c => c.Type is Claims.Admin or Claims.SuperAdmin);
         }
         // GET: Books
         public async Task<IActionResult> Index(int genreId, int authorId, string? search)
         {
-
+            _checkAccess();
             IQueryable<Book> bookContext = _context.Books
                     .Include(b => b.Author)
                     .Include(b => b.Genre)
@@ -72,7 +74,7 @@ namespace books.Controllers
         // GET: Books/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Books == null)
+            if (id == null)
             {
                 return NotFound();
             }
@@ -95,9 +97,6 @@ namespace books.Controllers
         // GET: Books/Create
         public async Task<IActionResult> Create()
         {
-            var access = _checkAccess();
-            if (access != null)
-                return access;
             IEnumerable<GenreDTO> genreDtos = _mapper.Map<IEnumerable<GenreDTO>>(await _context.Genres.ToListAsync());
             IEnumerable<AuthorDTO> authorDtos = _mapper.Map<IEnumerable<AuthorDTO>>(await _context.Authors.ToListAsync());
 
@@ -152,12 +151,10 @@ namespace books.Controllers
         }
 
         // GET: Books/Edit/5
+        [Authorize(Roles = "Admin,SuperAdmin")]
+
         public async Task<IActionResult> Edit(int? id)
         {
-            var access = _checkAccess();
-            if (access != null)
-                return access;
-           
             if (id == null || _context.Books == null)
             {
                 return NotFound();
@@ -189,6 +186,7 @@ namespace books.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> Edit(int id,EditBookModel viewModel)
         {
             if (id != viewModel.Book.Id)
@@ -244,11 +242,9 @@ namespace books.Controllers
         }
 
         // GET: Books/Delete/5
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> Delete(int? id)
-        {
-            var access = _checkAccess();
-            if (access != null)
-                return access;
+        {                     
             if (id == null || _context.Books == null)
             {
                 return NotFound();
@@ -275,6 +271,7 @@ namespace books.Controllers
         // POST: Books/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.Books == null)

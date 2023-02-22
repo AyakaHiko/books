@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using books.Authorization;
 using books.Data;
 using books.Models;
 using books.Services;
@@ -125,7 +126,6 @@ namespace books.Controllers
             if (!ModelState.IsValid) return View(model);
 
             var user = await _userManager.FindByEmailAsync(model.Email);
-
             if (user is not null)
             {
                 if (await _userManager.IsEmailConfirmedAsync(user) == false)
@@ -171,6 +171,11 @@ namespace books.Controllers
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult Cabinet()
+        {
+            return Content(User.Identity!.Name!);
         }
     }
 }

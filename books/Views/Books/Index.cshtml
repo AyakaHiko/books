@@ -56,7 +56,7 @@
                     <h3 class="card-title">@book.Genre?.Name</h3>
                     <p class="card-text">Publishing: @book.Publishing @book.PublicYear</p>
                     <div class="btn-group btn-group-sm">
-                        @if (User.Identity.IsAuthenticated)
+                        @if (ViewBag.IsAdmin)
                         {
                             <a asp-action="Edit" asp-route-id="@book.Id" class="btn-success btn">Edit</a>
                             <a asp-action="Delete" asp-route-id="@book.Id" class="btn-danger btn">Delete</a>
