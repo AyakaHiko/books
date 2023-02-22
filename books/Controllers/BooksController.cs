@@ -105,7 +105,7 @@ namespace books.Controllers
             IEnumerable<AuthorDTO> authorDtos = _mapper.Map<IEnumerable<AuthorDTO>>(await _context.Authors.ToListAsync());
 
             SelectList genreList = new SelectList(items: genreDtos, dataValueField: "Id", dataTextField: "Name");
-            SelectList authorList = new SelectList(items: authorDtos, dataValueField: "Id", dataTextField: "Surname");
+            SelectList authorList = new SelectList(items: authorDtos, dataValueField: "Id", dataTextField: "FullName");
             CreateBookModel vm = new CreateBookModel
             {
                 GenreList = genreList, AuthorList = authorList
@@ -298,6 +298,7 @@ namespace books.Controllers
             var book = await _context.Books.FindAsync(id);
             if (book != null)
             {
+                _deleteFile(book.CoverPath);
                 _context.Books.Remove(book);
             }
             
