@@ -4,6 +4,6 @@ namespace books.Models.ViewModels.BookModel
 {
     public class DeleteBookModel
     {
-        public BookDTO Book { get; set; }
+        public BookDTO Book { get; set; } = default!;
     }
 }

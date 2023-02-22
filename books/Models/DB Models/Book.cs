@@ -12,7 +12,7 @@ namespace books.Models
         public int? GenreId { get; set; }
         public Genre? Genre { get; set; }
         public string Publishing { get; set; } = default!;
-        public int PublicYear { get; set; } 
-        public byte[]? Cover { get; set; }
+        public int PublicYear { get; set; }
+        public string? CoverPath { get; set; } = default!;
     }
 }

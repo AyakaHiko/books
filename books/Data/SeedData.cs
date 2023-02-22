@@ -52,7 +52,7 @@ namespace books.Data
                     Genre = genre1,
                     Publishing = "Secker and Warburg",
                     PublicYear = 1949,
-                    Cover = await File.ReadAllBytesAsync($"{webHostEnvironment.WebRootPath}\\img\\1984.jpg")
+                    CoverPath = "img\\1984.jpg"
                 };
 
                 var book2 = new Book
@@ -62,7 +62,7 @@ namespace books.Data
                     Genre = genre1,
                     Publishing = "Chatto & Windus",
                     PublicYear = 1932,
-                    Cover = await File.ReadAllBytesAsync($"{webHostEnvironment.WebRootPath}\\img\\BNW.jpg")
+                    CoverPath= "img\\BNW.jpg"
                 };
 
                 var book3 = new Book
@@ -72,7 +72,7 @@ namespace books.Data
                     Genre = genre2,
                     Publishing = "Secker and Warburg",
                     PublicYear = 1945,
-                    Cover = await File.ReadAllBytesAsync($"{webHostEnvironment.WebRootPath}\\img\\AF.jpg")
+                    CoverPath = "img\\AF.jpg"
 
                 };
 
@@ -83,7 +83,7 @@ namespace books.Data
                     Genre = genre2,
                     Publishing = "W. W. Norton & Company",
                     PublicYear = 1996,
-                    Cover = await File.ReadAllBytesAsync($"{webHostEnvironment.WebRootPath}\\img\\FC.jpg")
+                    CoverPath = "img\\FC.jpg"
                 };
 
                 await context.Books.AddRangeAsync(book1, book2, book3, book4);
@@ -92,11 +92,7 @@ namespace books.Data
             await context.SaveChangesAsync();
         }
         
-
-        private static async void _createUsers(UserManager<User> userManager)
-        {
-
-        }
+        
 
         private static async Task<User> _createUser(UserManager<User> userManager, string email, string password)
         {

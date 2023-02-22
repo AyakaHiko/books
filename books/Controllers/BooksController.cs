@@ -21,8 +21,12 @@ namespace books.Controllers
         private readonly ILogger _logger;
 
         private readonly IMapper _mapper;
-        public BooksController(BookContext context, ILoggerFactory factory, IMapper mapper)
+        public BooksController(BookContext context, 
+            ILoggerFactory factory, 
+            IMapper mapper,
+            IWebHostEnvironment webHostEnvironment)
         {
+            _webHostEnvironment = webHostEnvironment;
             _context = context;
             _mapper = mapper;
             _logger = factory.CreateLogger<BooksController>();
@@ -62,7 +66,7 @@ namespace books.Controllers
             IEnumerable<BookDTO> bookDtos = _mapper.Map<IEnumerable<BookDTO>>(bookContext);
             
             SelectList genreList = new SelectList(items: genreDtos, dataValueField: "Id", dataTextField: "Name", selectedValue: genreId);
-            SelectList authorList = new SelectList(items: authorDtos, dataValueField: "Id", dataTextField: "FullName", selectedValue: genreId);
+            SelectList authorList = new SelectList(items: authorDtos, dataValueField: "Id", dataTextField: "FullName", selectedValue: authorId);
 
             IndexBookViewModel vm = new IndexBookViewModel
             {
@@ -120,12 +124,7 @@ namespace books.Controllers
         {
             if (ModelState.IsValid)
             {
-                byte[]? dataImage = null;
-                using (var reader = new BinaryReader(viewModel.Cover.OpenReadStream()))
-                {
-                    dataImage = reader.ReadBytes((int)viewModel.Cover.Length);
-                    viewModel.Book.Cover = dataImage;
-                }
+                viewModel.Book.CoverPath = await _coverUpload(viewModel.Cover);
 
                 Book book  = _mapper.Map<Book>(viewModel.Book);
                 _context.Add(book);
@@ -138,7 +137,7 @@ namespace books.Controllers
                 IEnumerable<AuthorDTO> authorDtos = _mapper.Map<IEnumerable<AuthorDTO>>(await _context.Authors.ToListAsync());
 
                 SelectList genreList = new SelectList(items: genreDtos, dataValueField: "Id", dataTextField: "Name", selectedValue: viewModel.Book.GenreId);
-                SelectList authorList = new SelectList(items: authorDtos, dataValueField: "Id", dataTextField: "Surname", selectedValue:viewModel.Book.AuthorId);
+                SelectList authorList = new SelectList(items: authorDtos, dataValueField: "Id", dataTextField: "FullName");
                 viewModel.AuthorList = authorList;
                 viewModel.GenreList = genreList;
                 foreach (var modelError in ModelState.Values.SelectMany(e=>e.Errors))
@@ -150,9 +149,18 @@ namespace books.Controllers
             }
         }
 
+        private IWebHostEnvironment _webHostEnvironment;
+        private async Task<string> _coverUpload(IFormFile? file)
+        {
+            if (file == null)
+                return "";
+            var uniqueFileName = Guid.NewGuid() + "_" + file.FileName;
+            var filePath = Path.Combine("img", uniqueFileName);
+            await using var fileStream = new FileStream(Path.Combine(_webHostEnvironment.WebRootPath, filePath), FileMode.Create);
+            await file.CopyToAsync(fileStream);
+            return filePath;
+        }
         // GET: Books/Edit/5
-        [Authorize(Roles = "Admin,SuperAdmin")]
-
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Books == null)
@@ -169,7 +177,7 @@ namespace books.Controllers
             IEnumerable<AuthorDTO> authorDtos = _mapper.Map<IEnumerable<AuthorDTO>>(await _context.Authors.ToListAsync());
 
             SelectList genreList = new SelectList(items: genreDtos, dataValueField: "Id", dataTextField: "Name");
-            SelectList authorList = new SelectList(items: authorDtos, dataValueField: "Id", dataTextField: "Surname");
+            SelectList authorList = new SelectList(items: authorDtos, dataValueField: "Id", dataTextField: "FullName");
             var vm = new EditBookModel()
             {
                 Book = _mapper.Map<BookDTO>(book),
@@ -186,7 +194,6 @@ namespace books.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> Edit(int id,EditBookModel viewModel)
         {
             if (id != viewModel.Book.Id)
@@ -198,14 +205,10 @@ namespace books.Controllers
             {
                 try
                 {
-                    if (viewModel.Cover is not null)
+                    if (viewModel.Cover != null)
                     {
-                        byte[]? dataImage = null;
-                        using (var reader = new BinaryReader(viewModel.Cover.OpenReadStream()))
-                        {
-                            dataImage = reader.ReadBytes((int)viewModel.Cover.Length);
-                            viewModel.Book.Cover = dataImage;
-                        }
+                        _deleteFile(viewModel.Book.CoverPath);
+                        viewModel.Book.CoverPath = await _coverUpload(viewModel.Cover);
                     }
                     var book = _mapper.Map<Book>(viewModel.Book);
 
@@ -241,8 +244,23 @@ namespace books.Controllers
             return View(vm);
         }
 
+        private void _deleteFile(string? filePath)
+        {
+            if (string.IsNullOrEmpty(filePath))
+            {
+                return;
+            }
+
+            string webRootPath = _webHostEnvironment.WebRootPath;
+            string fullPath = Path.Combine(webRootPath, filePath.TrimStart('/'));
+
+            if (System.IO.File.Exists(fullPath))
+            {
+                System.IO.File.Delete(fullPath);
+            }
+        }
+
         // GET: Books/Delete/5
-        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> Delete(int? id)
         {                     
             if (id == null || _context.Books == null)
@@ -271,7 +289,6 @@ namespace books.Controllers
         // POST: Books/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.Books == null)

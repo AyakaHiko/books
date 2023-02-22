@@ -12,6 +12,8 @@
         public string Publishing { get; set; } = default!;
         public int PublicYear { get; set; }
         public byte[]? Cover { get; set; }
+
+        public string? CoverPath { get; set; } = default!;
     }
 
     public class GenreDTO
