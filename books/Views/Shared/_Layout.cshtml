@@ -47,7 +47,7 @@
                                 <div class="nav-link text-primary rounded rounded-1 bg-gradientme-3">
                                     @if (User.HasClaim(c => c.Type == "SuperAdmin"))
                                     {
-                                        <a class="nav-link text-primary btn btn-sm btn-outline-info" asp-area="" asp-controller="SuperAdmin" asp-action="Index">
+                                        <a class="nav-link text-primary btn btn-sm btn-outline-info" asp-area="" asp-controller="SuperAdmin" asp-action="ManageUsersClaims">
                                             @User.Identity.Name
                                         </a>
                                     }

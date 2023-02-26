@@ -43,7 +43,6 @@
         </div>
     </div>
 </form>
-
 <div class="row">
     @foreach (var book in Model.Books)
     {
@@ -83,14 +82,5 @@
         </div>
     }
 </div>
-<div class="row g-3">
-    <h2 class="card-title">Last viewed</h2>
 
-    @foreach (var book in Model.Books)
-    {
-        <partial name="_BooksViewedPartial" model="book" />
-    }
-</div>
-
-<vc:last-viewed-books />
-
+<vc:last-viewed-book/>

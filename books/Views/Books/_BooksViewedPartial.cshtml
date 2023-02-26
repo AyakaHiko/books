@@ -1,49 +1,20 @@
 ﻿@model BookDTO
 @using books.Authorization
 
-<div class="col col-lg-4 col-md-6 col-12">
-
-    <div class="card border border-bottom border-2 h-100 mb-3">
-        <a asp-action="Details"
-           asp-route-id="@Model.Id">
-            <img src="@Model.CoverPath"
-                 class="card-img-top"
-                 alt="@Model.Title">
-        </a>
-
+<div class="col-sm-6 col-md-4 col-lg-3">
+    
+    <div class="card viewed-book" style="width: 18rem;">
+        <img class="card-img-top img-fluid rounded" src="@Model.CoverPath" alt="Card image cap">
         <div class="card-body">
-        </div>
-
-        <div class="card-footer bg-white">
-
-
-            @if (User.HasClaim(Claims.Admin, Claims.Admin))
-            {
-                <div class="row">
-                    <div class="col col-6">
-                        <a href="#"
-                       class="btn btn-lg btn-danger">
-                            Delete
-                        </a>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col col-6">
-                        <a href="#"
-                       class="btn btn-lg btn-warning">
-                            Edit
-                        </a>
-                    </div>
-
-                </div>
-            }
-
-            <h4 class="card-title">
+            <p class="card-title">
                 <a asp-action="Details"
                    asp-route-id="@Model.Id"
                    class="text-decoration-none">@Model.Title</a>
-            </h4>
+            </p>
+            <p class="card-title">@Model.Author?.ToString()</p>
+            <p class="card-title">@Model.Genre?.Name</>
+            <a href="#" class="btn btn-primary">Details</a>
         </div>
     </div>
-
+    
 </div>

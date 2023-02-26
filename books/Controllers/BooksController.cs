@@ -96,7 +96,7 @@ namespace books.Controllers
                     .FirstOrDefault(b => b.Id == id);
 
             HttpContext.Session.Set<Book>("LastViewedBook" + book.Id, book);
-
+            
 
             DetailsBookModel vm = new DetailsBookModel()
             {
@@ -356,5 +356,6 @@ namespace books.Controllers
         {
             return PartialView("_BooksViewedPartial");
         }
+
     }
 }

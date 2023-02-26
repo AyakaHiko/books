@@ -20,3 +20,8 @@ body {
     display: flex;
     align-items: center;
 }
+
+.viewed-book img {
+    max-height: 200px;
+    object-fit: cover;
+}
