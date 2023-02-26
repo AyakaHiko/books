@@ -9,5 +9,7 @@ namespace books.Models.ViewModels.BookModel
         public IFormFile? Cover { get; set; }
         public SelectList? GenreList { get; set; }
         public SelectList? AuthorList { get; set; }
+        public string[]? Tags { get; set; }
+
     }
 }

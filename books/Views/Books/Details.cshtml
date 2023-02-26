@@ -35,6 +35,16 @@
                     </span>
                     @Model.Book.Publishing @Model.Book.PublicYear
                 </p>
+                @if(Model.Book.Tags!=null)
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var tag in Model.Book.Tags)
+                        {
+                            <li class="list-group-item list-group-item-action">@tag.Name</li>
+                        }
+                    </ul>
+                        
+                }
             </div>
         </div>
     </div>

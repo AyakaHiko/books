@@ -11,7 +11,7 @@
         public GenreDTO? Genre { get; set; }
         public string Publishing { get; set; } = default!;
         public int PublicYear { get; set; }
-        public byte[]? Cover { get; set; }
+        public List<Tag>? Tags { get; set; } = default!;
 
         public string? CoverPath { get; set; } = default!;
     }

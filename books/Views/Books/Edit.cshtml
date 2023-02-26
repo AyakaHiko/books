@@ -48,6 +48,27 @@
                 <input asp-for="Cover" class="form-control" />
                 <span asp-validation-for="Cover" class="text-danger"></span>
             </div>
+            <div id="tag-inputs">
+                @if(@Model.Book.Tags.Any())
+                {
+                    int index = 0;
+                    @foreach (var tag in @Model.Book.Tags)
+                    {
+                        <input type="hidden" asp-for="Book.Tags[index].Name" value="@tag.Name"/>
+
+                        <partial name="_AddNewTagPartial" model="(@tag.Name)" />
+
+                        index++;
+                    }
+                }
+            </div>
+            <div class="mb-3 mt-3">
+                <button type="button"
+                        onclick="addNewTag()"
+                        class="btn btn-primary">
+                    Add Tag
+                </button>
+            </div>
             <div class="form-group">
                 <input type="submit" value="Edit" class="btn btn-primary" />
             </div>
@@ -60,3 +81,4 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
+<script src="/js/tags.js"></script>

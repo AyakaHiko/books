@@ -51,10 +51,21 @@
             <div class="card mb-3">
                 <div class="card-body">
                     <h2 class="card-title">@book.Title</h2>
-                    <hr/>
+                    <hr />
                     <h3 class="card-title">@book.Author?.ToString()</h3>
                     <h3 class="card-title">@book.Genre?.Name</h3>
                     <p class="card-text">Publishing: @book.Publishing @book.PublicYear</p>
+                    @if (book.Tags != null)
+                    {
+                        <div>
+                            <h3 class="card-title">Tags:</h3>
+                            @foreach (var tag in book.Tags)
+                            {
+                                <span class="card-text">@tag.Name</span>
+                            }
+                        </div>
+
+                    }
                     <div class="btn-group btn-group-sm">
                         @if (ViewBag.IsAdmin)
                         {
@@ -64,11 +75,22 @@
                         <a asp-action="Details" asp-route-id="@book.Id" class="btn-warning btn ">Details</a>
                     </div>
 
+                    <div class="card">
+                        <img class="card-img-bottom" src="@book.CoverPath" alt="Cover" />
+                    </div>
                 </div>
-            </div>
-            <div class="card">
-                <img class="card-img-bottom" src="@book.CoverPath" alt="Cover"/>
             </div>
         </div>
     }
 </div>
+<div class="row g-3">
+    <h2 class="card-title">Last viewed</h2>
+
+    @foreach (var book in Model.Books)
+    {
+        <partial name="_BooksViewedPartial" model="book" />
+    }
+</div>
+
+<vc:last-viewed-books />
+

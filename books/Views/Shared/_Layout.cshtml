@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using books.Authorization
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -7,6 +9,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/books.styles.css" asp-append-version="true" />
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 </head>
@@ -41,13 +44,22 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item bg-light rounded rounded-1">
-                                <div class="nav-link text-primary">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Cabinet">
-                                        @User.Identity.Name
-
-                                    </a>
+                                <div class="nav-link text-primary rounded rounded-1 bg-gradientme-3">
+                                    @if (User.HasClaim(c => c.Type == "SuperAdmin"))
+                                    {
+                                        <a class="nav-link text-primary btn btn-sm btn-outline-info" asp-area="" asp-controller="SuperAdmin" asp-action="Index">
+                                            @User.Identity.Name
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a class="nav-link text-primary btn btn-sm btn-outline-info" asp-area="" asp-controller="Account" asp-action="Cabinet">
+                                            @User.Identity.Name
+                                        </a>
+                                    }
                                 </div>
                             </li>
+                          
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
                             </li>
@@ -58,12 +70,12 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
                             </li>
-                            
+
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
                             </li>
                         }
-                        
+
                     </ul>
                 </div>
             </div>

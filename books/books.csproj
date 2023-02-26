@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Pages\" />
     <Folder Include="wwwroot\img\" />
   </ItemGroup>
 
@@ -28,6 +29,14 @@
     <None Include="wwwroot\img\1984.jpg" />
     <None Include="wwwroot\img\BNW.jpg" />
     <None Include="wwwroot\img\CotW.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Shared\Components\LastViewedBook\Default.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Views\Shared\Components\LastViewedBook\Default.cshtml" />
   </ItemGroup>
 
 </Project>

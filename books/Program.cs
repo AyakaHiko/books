@@ -29,6 +29,12 @@ builder.Services.AddAuthorization(options =>
     }
     );
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(1);
+    options.Cookie.IsEssential = true;
+});
 
 builder.Services.AddDbContext<BookContext>(options =>
 {
@@ -70,6 +76,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseSession();
 
 
 app.UseAuthentication();

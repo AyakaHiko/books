@@ -1,0 +1,7 @@
+﻿@model string
+<div class="tag-input-container mt-3">
+    <input type="text" name="Tags" class="form-control" placeholder="Enter a tag" value="@Model"/>
+    <button onclick="deleteTag(event)" type="button" class="btn btn-danger tag-delete-button"><i class="fas fa-times"></i></button>
+    <span class="text-danger"></span>
+</div>
+<script src="/js/deleteTag.js"></script>
