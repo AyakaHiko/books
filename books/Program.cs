@@ -32,7 +32,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(1);
+    options.IdleTimeout = TimeSpan.FromDays(10);
     options.Cookie.IsEssential = true;
 });
 

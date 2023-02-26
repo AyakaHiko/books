@@ -1,4 +1,4 @@
-﻿@model BookDTO
+﻿@model Book
 @using books.Authorization
 
 <div class="col-sm-6 col-md-4 col-lg-3">
@@ -13,7 +13,9 @@
             </p>
             <p class="card-title">@Model.Author?.ToString()</p>
             <p class="card-title">@Model.Genre?.Name</>
-            <a href="#" class="btn btn-primary">Details</a>
+            <hr />
+            <a asp-action="Details"
+               asp-route-id="@Model.Id" class="btn btn-primary">Details</a>
         </div>
     </div>
     
