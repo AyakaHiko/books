@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 using AutoMapper;
 using books.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +9,6 @@ using books.Extensions;
 using books.Models;
 using books.Models.DTO;
 using books.Models.ViewModels.BookModel;
-using Microsoft.AspNetCore.Authorization;
 
 namespace books.Controllers
 {
@@ -171,7 +166,7 @@ namespace books.Controllers
         {
             return tags.Select(tag =>
                     _context.Tags.AsEnumerable().FirstOrDefault(t =>
-                        String.Compare(t.Name, tag, StringComparison.CurrentCultureIgnoreCase) == 0)
+                        string.Compare(t.Name, tag, StringComparison.CurrentCultureIgnoreCase) == 0)
                 ??
                     new Tag
                     {
