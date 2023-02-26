@@ -64,9 +64,7 @@ namespace books.Controllers
                 bookContext = bookContext.Where(b => b.Title.Contains(search) ||
                                                      b.Tags.AsEnumerable()
                                                          .Any(t =>
-                                                             t.Name.Contains(search)))
-                    //String.Compare(t.Name, search, StringComparison.CurrentCultureIgnoreCase) == 0)))
-                    ;
+                                                             t.Name.Contains(search)));
 
             }
 
@@ -145,8 +143,6 @@ namespace books.Controllers
                 if (viewModel.Tags != null)
                 {
                     viewModel.Book.Tags = await _handleTags(viewModel.Tags);
-                    //viewModel.Book.Tags ??= new List<Tag>();
-                    //viewModel.Book.Tags!.AddRange(_getTagsByNames(viewModel.Tags));
                 }
                 Book book = _mapper.Map<Book>(viewModel.Book);
                 await _context.AddAsync(book);
@@ -170,8 +166,8 @@ namespace books.Controllers
                 return View(viewModel);
             }
         }
-
-        private async Task<List<Tag>> _handleTags(string[]? tags)
+        
+        private async Task<List<Tag>> _handleTags(IEnumerable<string>? tags)
         {
             return tags.Select(tag =>
                     _context.Tags.AsEnumerable().FirstOrDefault(t =>
@@ -183,24 +179,7 @@ namespace books.Controllers
                 .TextInfo.ToTitleCase(tag.ToLower())
                     })
                 .ToList();
-
-            var tagContext = _context.Tags.AsEnumerable();
-            foreach (var tag in tags)
-            {
-                if (tagContext.Any(t => t.Name.Contains(tag, StringComparison.CurrentCultureIgnoreCase)))
-                    continue;
-                string formattedTag = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(tag.ToLower());
-
-                _context.Tags.Add(new Tag { Name = formattedTag });
-            }
-            await _context.SaveChangesAsync();
-
         }
-        private IEnumerable<Tag> _getTagsByNames(IEnumerable<string> tagNames) =>
-            _context.Tags.Where(t => tagNames.Contains(t.Name)).Distinct()
-                .Include(t => t.Books)
-                .ToList();
-
 
 
         private IWebHostEnvironment _webHostEnvironment;
